@@ -9,6 +9,7 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 
 const SHOW_UI_COMMAND = "globalprotect launch-ui";
+const GLOBAL_PROTECT_ICON_PATH = "/usr/share/icons/hicolor/48x48/apps/globalprotect.png";
 
 let globalProtectUILauncher;
 
@@ -20,10 +21,8 @@ const GlobalProtectUILauncher = new Lang.Class({
         
         let launcherButton = new PanelMenu.Button(0.0, launcherName, false);
         
-        let icon = new St.Icon({
-            gicon: new Gio.ThemedIcon({name: 'network-vpn-symbolic'}),
-            style_class: 'system-status-icon'
-        });
+        let gicon = this._loadGlobalProtectIcon();
+        let icon = new St.Icon({ gicon: gicon, style_class: 'system-status-icon' });
         launcherButton.actor.connect('button_press_event', Lang.bind(this, this._showui, false))
         launcherButton.add_child(icon);
 
@@ -43,6 +42,10 @@ const GlobalProtectUILauncher = new Lang.Class({
             logError(err);
         }
     },
+
+    _loadGlobalProtectIcon: function() {
+        return Gio.icon_new_for_string(GLOBAL_PROTECT_ICON_PATH);
+    }
 });
 
 class Extension {
