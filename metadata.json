@@ -1,0 +1,8 @@
+{
+  "name": "Gnome GlobalProtect",
+  "description": "Launch GlobalProtect UI",
+  "uuid": "gnomeglobalprotect@sascha.hagedorn.form3.tech",
+  "shell-version": [
+    "3.36"
+  ]
+}
