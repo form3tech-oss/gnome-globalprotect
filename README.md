@@ -1,6 +1,6 @@
-# GNOME Global Protect
+# Gnome GlobalProtect
 
-Displays an icon in the menu bar which opens the Global Protect UI when clicked.
+Displays an icon in the menu bar which opens the GlobalProtect UI when clicked.
 
 ## Installation
 
