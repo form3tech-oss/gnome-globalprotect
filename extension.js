@@ -40,7 +40,7 @@ const GlobalProtectUILauncher = new Lang.Class({
         let launcherName = `${ThisExtension.metadata.name} UI Launcher`;
         
         this.launcherButton = new PanelMenu.Button(0.0, launcherName, false);
-        this.launcherButton.actor.connect('button_press_event', Lang.bind(this, this.showui, false))
+        this.launcherButton.connect('button_press_event', Lang.bind(this, this.showui, false))
         this.launcherButton.add_child(this.icon);
         Main.panel.addToStatusArea(launcherName, this.launcherButton);
 
