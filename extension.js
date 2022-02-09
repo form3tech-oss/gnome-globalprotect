@@ -103,6 +103,12 @@ const GlobalProtectUILauncher = new Lang.Class({
         if (this.connectionMonitor != null) {
             clearInterval(this.connectionMonitor);
         }
+
+        if (this.launcherButton != null) {
+            this.launcherButton.remove_child(this.icon);
+            this.launcherButton.destroy();
+            this.launcherButton = null;
+        }
     }
 });
 
