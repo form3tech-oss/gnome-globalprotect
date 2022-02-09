@@ -3,6 +3,7 @@
   "description": "Launch GlobalProtect UI",
   "uuid": "gnomeglobalprotect@sascha.hagedorn.form3.tech",
   "shell-version": [
-    "3.36"
+    "3.36",
+    "40.4"
   ]
 }

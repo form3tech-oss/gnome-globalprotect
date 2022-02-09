@@ -11,6 +11,22 @@ mkdir -p ~/.local/share/gnome-shell/extensions
 git clone https://github.com/saschahagedorn-f3/gnome-globalprotect ~/.local/share/gnome-shell/extensions/gnomeglobalprotect@sascha.hagedorn.form3.tech
 ```
 
+Confirm PanGPUI is set as a startup program:
+
+```
+gnome-session-properties
+```
+
+Confirm that PanGPUI is in the list of startup programs and is checked. If not, add a new program with the following:
+
+```
+Name: PanGPUI
+Command: /opt/paloaltonetworks/globalprotect/PanGPUI
+```
+
+> **_NOTE:_** Failing to set PanGPUI as a startup program can result in gnome freezing when you click on the GlobalProtect Icon.
+
+
 Enable the extension:
 
 ```
