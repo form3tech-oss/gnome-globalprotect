@@ -1,6 +1,6 @@
 # Gnome GlobalProtect
 
-Displays an icon in the menu bar which opens the GlobalProtect UI when clicked. The icon will be grayed out when no VPN connection exists. The extension checks for the VPN connectivity status every 5 seconds. 
+Displays an icon in the menu bar which opens the GlobalProtect UI when clicked. The icon will be grayed out when no VPN connection exists. The extension checks for the VPN connectivity status every 5 seconds.
 
 ## Installation
 
