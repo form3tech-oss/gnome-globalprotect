@@ -40,15 +40,15 @@ const GlobalProtectUILauncher = new Lang.Class({
         let launcherName = `${ThisExtension.metadata.name} UI Launcher`;
         
         this.launcherButton = new PanelMenu.Button(0.0, launcherName, false);
-        this.launcherButton.connect('button_press_event', Lang.bind(this, this.showui, false))
+        this.launcherButton.connect('button_press_event', Lang.bind(this, this.showui))
         this.launcherButton.add_child(this.icon);
         Main.panel.addToStatusArea(launcherName, this.launcherButton);
 
-        this.connectionMonitor = setInterval(Lang.bind(this, this.checkConnection, false), CHECK_CONNECTION_INTERVAL_MS);
+        this.connectionMonitor = setInterval(Lang.bind(this, this.checkConnection), CHECK_CONNECTION_INTERVAL_MS);
     },
 
     showui: function() {
-        this._spawn(SHOW_UI_COMMAND, null);
+        this._spawn(SHOW_UI_COMMAND);
     },
 
     checkConnection: function() {
@@ -62,46 +62,72 @@ const GlobalProtectUILauncher = new Lang.Class({
                 this.icon = disconnectedIcon;
                 this.launcherButton.add_child(this.icon);
             }
-        }, false));
+        }));
     },
 
     _spawn: function(cmd, resultCallback) {
-        let success, argv, pid, in_fd, out_fd, err_fd;
-        [success,argv] = GLib.shell_parse_argv(cmd);
+        
 
         try {
-            [success, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(
-                null,
-                argv,
-                null,
-                GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                null);
+            let [success,argv] = GLib.shell_parse_argv("sh -c '" + cmd + "'");
+            if (success) {
+                let [_, pid, stdin, stdout, stderr] = GLib.spawn_async_with_pipes(
+                    null,
+                    argv,
+                    null,
+                    GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+                    null
+                );
+
+                this.stdout = new Gio.UnixInputStream({fd: stdout, close_fd: true});
+                this.dataStdout = new Gio.DataInputStream({ base_stream: this.stdout });
+
+                new Gio.UnixOutputStream({fd: stdin, close_fd: true}).close(null);
+                new Gio.UnixInputStream({fd: stderr, close_fd: true}).close(null);
+
+                this.childWatch = GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, Lang.bind(this, function(pid) {
+                    GLib.source_remove(this.childWatch);
+
+                    if (typeof resultCallback == 'function') {
+                        this._readStdout(resultCallback);
+                    }
+                }));
+            }
         } catch(err) {
             logError(err);
         }
-        
-        if (success && pid != 0) {
-            let stdout = new Gio.DataInputStream({ 
-                base_stream: new Gio.UnixInputStream({fd: out_fd}) 
-            });
-    
-            GLib.child_watch_add( GLib.PRIORITY_DEFAULT, pid,
-                function(pid) {
-                    GLib.spawn_close_pid(pid);
-                    var [line, size, buf] = [null, 0, ""];
-                    while (([line, size] = stdout.read_line(null)) != null && line != null) {
-                        buf += ByteArray.toString(line);
-                    }
-                  
-                    typeof resultCallback == 'function' && resultCallback(buf);
+    },
+
+    _readStdout: function(callback) {
+        this.dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
+            if (stream.fill_finish(result) == 0){
+                try {
+                    callback(ByteArray.toString(stream.peek_buffer()));
+                } catch(err) {
+                    logError(err);
                 }
-            );
-        }
+                this.stdout.close(null);
+                return;
+            }
+
+            stream.set_buffer_size(2 * stream.get_buffer_size());
+            this._readStdout(callback);
+        }));
     },
 
     destroy: function() {
+        if (this.childWatch != null) {
+            GLib.source_remove(this.childWatch);
+            this.childWatch = null;
+        }
+
+        if (!this.dataStdout.is_closed()) {
+            this.stdout.close(null);
+        }
+
         if (this.connectionMonitor != null) {
             clearInterval(this.connectionMonitor);
+            this.connectionMonitor = null;
         }
 
         if (this.launcherButton != null) {
@@ -109,7 +135,7 @@ const GlobalProtectUILauncher = new Lang.Class({
             this.launcherButton.destroy();
             this.launcherButton = null;
         }
-    }
+    },
 });
 
 class Extension {
