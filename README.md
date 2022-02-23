@@ -8,7 +8,7 @@ Clone this repo to the extensions folder:
 
 ```
 mkdir -p ~/.local/share/gnome-shell/extensions
-git clone https://github.com/form3tech-oss/gnome-globalprotect ~/.local/share/gnome-shell/extensions/gnomeglobalprotect@gnomeglobalprotect@form3tech-oss
+git clone https://github.com/form3tech-oss/gnome-globalprotect ~/.local/share/gnome-shell/extensions/gnomeglobalprotect@form3tech-oss
 ```
 
 Confirm PanGPUI is set as a startup program:
